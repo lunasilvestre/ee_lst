@@ -1,6 +1,6 @@
 import ee
 
-def add_band(landsat, image):
+def add_fvc_band(landsat, image):
     """
     Compute Fraction of Vegetation Cover (FVC) for a given Landsat image using NDVI.
 

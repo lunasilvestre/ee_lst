@@ -1,7 +1,7 @@
 import ee
-from python_modules import ASTER_bare_emiss
+import aster_bare_emiss
 
-def add_band(landsat, use_ndvi, image):
+def add_emissivity_band(landsat, use_ndvi, image):
     """
     Compute surface emissivity for a given Landsat image using ASTER and FVC.
 
@@ -40,8 +40,8 @@ def add_band(landsat, use_ndvi, image):
     emiss_bare = image.expression(
         'c13 * EM13 + c14 * EM14 + c',
         {
-            'EM13': ASTER_bare_emiss.emiss_bare_band13(image),
-            'EM14': ASTER_bare_emiss.emiss_bare_band14(image),
+            'EM13': aster_bare_emiss.emiss_bare_band13(image),
+            'EM14': aster_bare_emiss.emiss_bare_band14(image),
             'c13': ee.Image(c13),
             'c14': ee.Image(c14),
             'c': ee.Image(c)

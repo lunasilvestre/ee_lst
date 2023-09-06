@@ -4,7 +4,7 @@ import ee
 ee.Initialize()
 
 # Define the Landsat LST module (assuming you've refactored it to Python)
-from python_modules.Landsat_LST import collection as landsat_collection
+from landsat_lst import fetch_landsat_collection
 
 # Define parameters
 geometry = ee.Geometry.Rectangle([-8.91, 40.0, -8.3, 40.4])
@@ -14,7 +14,7 @@ date_end = '2022-05-31'
 use_ndvi = True
 
 # Get Landsat collection with added variables: NDVI, FVC, TPW, EM, LST
-landsat_coll = landsat_collection(satellite, date_start, date_end, geometry, use_ndvi)
+landsat_coll = fetch_landsat_collection(satellite, date_start, date_end, geometry, use_ndvi)
 print(landsat_coll.getInfo())
 
 # Select the first feature

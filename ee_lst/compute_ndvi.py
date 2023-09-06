@@ -1,6 +1,6 @@
 import ee
 
-def add_band(landsat, image):
+def add_ndvi_band(landsat, image):
     """
     Compute NDVI values for a given Landsat image.
 
@@ -30,5 +30,3 @@ def add_band(landsat, image):
     ).rename('NDVI')
     
     return image.addBands(ndvi)
-
-# You can add more functions as needed based on the content of the original `compute_NDVI.js`.

@@ -1,6 +1,6 @@
 import ee
 
-def sr(image):
+def mask_sr(image):
     """
     Apply cloud mask to surface reflectance Landsat image.
 
@@ -15,7 +15,7 @@ def sr(image):
     cloud_mask = image.select('QA_PIXEL').bitwiseAnd(1 << 3).eq(0)
     return image.updateMask(cloud_mask)
 
-def toa(image):
+def mask_toa(image):
     """
     Apply cloud mask to top-of-atmosphere reflectance Landsat image.
 

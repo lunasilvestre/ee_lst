@@ -1,5 +1,5 @@
 import ee
-from python_modules.ASTER_bare_emiss import (
+from aster_bare_emiss import (
     emiss_bare_band10,
     emiss_bare_band11,
     emiss_bare_band12,
