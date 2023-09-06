@@ -1,13 +1,5 @@
 import ee
-from ee_lst.smw_coefficients import coeff_SMW_L4, coeff_SMW_L5, coeff_SMW_L7, coeff_SMW_L8, coeff_SMW_L9
-
-def get_lookup_table(fc, prop_1, prop_2):
-    """
-    Create a lookup between two columns in a feature collection.
-    """
-    reducer = ee.Reducer.toList().repeat(2)
-    lookup = fc.reduceColumns(reducer, [prop_1, prop_2])
-    return ee.List(lookup.get('list'))
+from ee_lst.constants import SMW_COEFFICIENTS, LANDSAT_BANDS
 
 def add_lst_band(landsat, image):
     """
@@ -21,35 +13,28 @@ def add_lst_band(landsat, image):
     - ee.Image: Image with added LST band
     """
     
-    # Select algorithm coefficients
-    coeff_SMW = {
-        'L4': coeff_SMW_L4,
-        'L5': coeff_SMW_L5,
-        'L7': coeff_SMW_L7,
-        'L8': coeff_SMW_L8,
-        'L9': coeff_SMW_L9
-    }.get(landsat, coeff_SMW_L9)  # Default to L9 if not found
+    # Check for valid Landsat version
+    if landsat not in LANDSAT_BANDS:
+        raise ValueError(f"Invalid Landsat version provided: {landsat}. Supported versions are: {', '.join(LANDSAT_BANDS.keys())}.")
     
-    # Create lookups for the algorithm coefficients
-    A_lookup = get_lookup_table(coeff_SMW, 'TPWpos', 'A')
-    B_lookup = get_lookup_table(coeff_SMW, 'TPWpos', 'B')
-    C_lookup = get_lookup_table(coeff_SMW, 'TPWpos', 'C')
-  
-    # Map coefficients to the image using the TPW bin position
-    A_img = image.remap(A_lookup.get(0), A_lookup.get(1), 0.0, 'TPWpos').resample('bilinear')
-    B_img = image.remap(B_lookup.get(0), B_lookup.get(1), 0.0, 'TPWpos').resample('bilinear')
-    C_img = image.remap(C_lookup.get(0), C_lookup.get(1), 0.0, 'TPWpos').resample('bilinear')
+    # Check for required image bands
+    required_bands = ['EM', 'TPW'] + LANDSAT_BANDS[landsat]['TIR']
+    missing_bands = [band for band in required_bands if band not in image.bandNames().getInfo()]
+    if missing_bands:
+        raise ValueError(f"Missing required bands in the image: {', '.join(missing_bands)}.")
+
+    # Directly access the coefficients for the given Landsat version
+    coeff = SMW_COEFFICIENTS.get(landsat)
+    if not coeff:
+        raise ValueError(f"Missing coefficients for Landsat version: {landsat}.")
     
-    # Select TIR band
-    tir = {
-        'L9': 'B10',
-        'L8': 'B10',
-        'L7': 'B6_VCID_1',
-        'L4': 'B6',
-        'L5': 'B6'
-    }.get(landsat, 'B10')  # Default to B10 if not found
+    A_img = ee.Image.constant(coeff['A'])
+    B_img = ee.Image.constant(coeff['B'])
+    C_img = ee.Image.constant(coeff['C'])
     
-    # Compute the LST
+    # Directly access the TIR band from the LANDSAT_BANDS dictionary
+    tir = LANDSAT_BANDS[landsat]['TIR'][0]
+    
     lst = image.expression(
         'A * Tb1 / em1 + B / em1 + C',
         {
