@@ -1,0 +1,37 @@
+{
+	"name": "Python 3 for LST Refactoring",
+	"image": "mcr.microsoft.com/devcontainers/python:0-3.9",
+	"features": {
+		"ghcr.io/devcontainers/features/docker-in-docker:2": {},
+		"ghcr.io/devcontainers/features/python:1": {},
+		"ghcr.io/devcontainers-contrib/features/curl-apt-get:1": {},
+		"ghcr.io/devcontainers-contrib/features/wget-apt-get:1": {},
+		"ghcr.io/eitsupi/devcontainer-features/jq-likes:1": {},
+		"ghcr.io/dhoeric/features/google-cloud-cli:1": {}
+	},
+	"postCreateCommand": "pip install numpy pandas rasterio satpy dask google-api-python-client pyCrypto earthengine-api",
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				"aaron-bond.better-comments",
+				"DavidAnson.vscode-markdownlint",
+				"dbaeumer.vscode-eslint",
+				"donjayamanne.python-environment-manager",
+				"eamodio.gitlens",
+				"hashicorp.terraform",
+				"ms-azuretools.vscode-docker",
+				"ms-python.python",
+				"ms-python.vscode-pylance",
+				"ms-toolsai.jupyter",
+				"ms-vscode-remote.remote-containers",
+				"njpwerner.autodocstring",
+				"streetsidesoftware.code-spell-checker",
+				"VisualStudioExptTeam.vscodeintellicode",
+				"vscode-icons-team.vscode-icons",
+				"googlecloudtools.cloudcode",
+				"redhat.vscode-yaml",
+				"johnpapa.vscode-cloak"
+			]
+		}
+	}
+}
