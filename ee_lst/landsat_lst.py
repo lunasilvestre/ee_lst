@@ -34,7 +34,7 @@ def fetch_landsat_collection(landsat, date_start, date_end, geometry, use_ndvi):
     initialize_ee()
 
     # Check if the provided Landsat collection is valid
-    if landsat not in {list(LANDSAT_BANDS.keys())}:
+    if landsat not in LANDSAT_BANDS.keys():
         raise ValueError(f"Invalid Landsat constellation: {landsat}. Valid options are: {list(LANDSAT_BANDS.keys())}")
         
     collection_dict = LANDSAT_BANDS[landsat]

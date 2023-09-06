@@ -1,5 +1,5 @@
 import ee
-import ee_lst.smw_coefficients
+from ee_lst.smw_coefficients import coeff_SMW_L4, coeff_SMW_L5, coeff_SMW_L7, coeff_SMW_L8, coeff_SMW_L9
 
 def get_lookup_table(fc, prop_1, prop_2):
     """
@@ -11,7 +11,7 @@ def get_lookup_table(fc, prop_1, prop_2):
 
 def add_lst_band(landsat, image):
     """
-    Apply the Stastical Mono-Window algorithm to compute the LST.
+    Apply the Statistical Mono-Window algorithm to compute the LST.
 
     Parameters:
     - landsat (str): ID of the Landsat satellite (e.g., 'L8')
@@ -23,12 +23,12 @@ def add_lst_band(landsat, image):
     
     # Select algorithm coefficients
     coeff_SMW = {
-        'L4': smw_coefficients.coeff_SMW_L4,
-        'L5': smw_coefficients.coeff_SMW_L5,
-        'L7': smw_coefficients.coeff_SMW_L7,
-        'L8': smw_coefficients.coeff_SMW_L8,
-        'L9': smw_coefficients.coeff_SMW_L9
-    }.get(landsat, smw_coefficients.coeff_SMW_L9)  # Default to L9 if not found
+        'L4': coeff_SMW_L4,
+        'L5': coeff_SMW_L5,
+        'L7': coeff_SMW_L7,
+        'L8': coeff_SMW_L8,
+        'L9': coeff_SMW_L9
+    }.get(landsat, coeff_SMW_L9)  # Default to L9 if not found
     
     # Create lookups for the algorithm coefficients
     A_lookup = get_lookup_table(coeff_SMW, 'TPWpos', 'A')

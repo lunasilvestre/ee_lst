@@ -1,0 +1,8 @@
+numpy
+pandas
+rasterio
+satpy
+dask
+google-api-python-client
+pyCrypto
+earthengine-api

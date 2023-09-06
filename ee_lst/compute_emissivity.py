@@ -1,5 +1,5 @@
 import ee
-import ee_lst.aster_bare_emiss
+from ee_lst.aster_bare_emiss import emiss_bare_band13, emiss_bare_band14
 
 def add_emissivity_band(landsat, use_ndvi, image):
     """
@@ -40,8 +40,8 @@ def add_emissivity_band(landsat, use_ndvi, image):
     emiss_bare = image.expression(
         'c13 * EM13 + c14 * EM14 + c',
         {
-            'EM13': aster_bare_emiss.emiss_bare_band13(image),
-            'EM14': aster_bare_emiss.emiss_bare_band14(image),
+            'EM13': emiss_bare_band13(image),
+            'EM14': emiss_bare_band14(image),
             'c13': ee.Image(c13),
             'c14': ee.Image(c14),
             'c': ee.Image(c)
