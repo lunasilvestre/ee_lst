@@ -29,5 +29,3 @@ def add_fvc_band(landsat, image):
     fvc = fvc.where(fvc.gt(1.0), 1.0)
     
     return image.addBands(fvc.rename('FVC'))
-
-# You can add more functions as needed based on the content of the original `compute_FVC.js`.

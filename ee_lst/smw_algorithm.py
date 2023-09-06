@@ -1,5 +1,5 @@
 import ee
-import smw_coefficients
+import ee_lst.smw_coefficients
 
 def get_lookup_table(fc, prop_1, prop_2):
     """
@@ -62,5 +62,3 @@ def add_lst_band(landsat, image):
     ).updateMask(image.select('TPW').lt(0).Not())
     
     return image.addBands(lst.rename('LST'))
-
-# You can add more functions as needed based on the content of the original `SMWalgorithm.js`.

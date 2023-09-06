@@ -66,5 +66,3 @@ coeff_SMW_L9 = ee.FeatureCollection([
     ee.Feature(None, {'TPWpos': 8, 'A': 1.5396, 'B': -427.0904, 'C': 274.6380}),
     ee.Feature(None, {'TPWpos': 9, 'A': 1.9223, 'B': -541.7084, 'C': 277.4964})
 ])
-
-# You can add more functions or utilities as needed based on the content of the original `SMW_coefficients.js`.

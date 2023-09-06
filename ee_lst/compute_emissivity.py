@@ -1,5 +1,5 @@
 import ee
-import aster_bare_emiss
+import ee_lst.aster_bare_emiss
 
 def add_emissivity_band(landsat, use_ndvi, image):
     """
@@ -79,5 +79,3 @@ def add_emissivity_band(landsat, use_ndvi, image):
     EM = EM.where(qa.bitwiseAnd(1 << 5), 0.989)
     
     return image.addBands(EM.rename('EM'))
-
-# You can add more functions as needed based on the content of the original `compute_emissivity.js`.

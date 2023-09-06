@@ -29,5 +29,3 @@ def mask_toa(image):
     # For example:
     cloud_mask = image.select('QA_PIXEL').bitwiseAnd(1 << 3).eq(0)
     return image.updateMask(cloud_mask)
-
-# Add more functions as needed based on the content of the original `cloudmask.js`.

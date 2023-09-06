@@ -1,10 +1,16 @@
 import ee
 
 # Initialize the Earth Engine API
-ee.Initialize()
+if not ee.data._initialized:
+    try:
+        ee.Initialize()
+    except Exception as e:
+        print("Please authenticate Google Earth Engine first.")
+        ee.Authenticate()
+        ee.Initialize()
 
 # Define the Landsat LST module (assuming you've refactored it to Python)
-from landsat_lst import fetch_landsat_collection
+from ee_lst.landsat_lst import fetch_landsat_collection
 
 # Define parameters
 geometry = ee.Geometry.Rectangle([-8.91, 40.0, -8.3, 40.4])

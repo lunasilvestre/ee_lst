@@ -46,5 +46,3 @@ def emiss_bare_band13(image):
 
 def emiss_bare_band14(image):
     return emiss_bare_band('emissivity_band14', image)
-
-# You can add more functions or utilities as needed based on the content of the original `ASTER_bare_emiss.js`.

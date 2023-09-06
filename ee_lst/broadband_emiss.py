@@ -1,5 +1,5 @@
 import ee
-from aster_bare_emiss import (
+from ee_lst.aster_bare_emiss import (
     emiss_bare_band10,
     emiss_bare_band11,
     emiss_bare_band12,
@@ -45,5 +45,3 @@ def add_band(dynamic, image):
     )
     
     return image.addBands(bbe.rename('BBE'))
-
-# You can add more functions or utilities as needed based on the content of the original `broadband_emiss.js`.
