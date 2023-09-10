@@ -1,11 +1,14 @@
 import ee
 
+
 def add_tpw_band(image):
     """
-    Add total precipitable water values and index for the LUT of SMW algorithm coefficients to the image.
+    Add total precipitable water values and index for 
+    the LUT of SMW algorithm coefficients to the image.
 
     Parameters:
-    - image (ee.Image): Image for which to interpolate the TPW data. Needs the 'system:time_start' image property.
+    - image (ee.Image): Image for which to interpolate the TPW data. 
+      Needs the 'system:time_start' image property.
 
     Returns:
     - ee.Image: Image with added 'TPW' and 'TPWpos' bands.
@@ -15,25 +18,32 @@ def add_tpw_band(image):
     year = date.get('year')
     month = date.get('month')
     day = date.get('day')
-    dateString = year.format().cat('-').cat(month.format()).cat('-').cat(day.format())
+    dateString = year.format() \
+        .cat('-').cat(month.format()) \
+        .cat('-').cat(day.format())
     date1 = ee.Date(dateString)  
     date2 = date1.advance(1, 'days')
 
     def datedist(img):
-        return img.set('DateDist', ee.Number(img.get('system:time_start')).subtract(date.millis()).abs())
-
+        return img.set('DateDist', ee.Number(img.get('system:time_start'))
+                       .subtract(date.millis()).abs())
 
     tpw_collection = (ee.ImageCollection('NCEP_RE/surface_wv')
-                     .filterDate(date1.format('yyyy-MM-dd'), date2.format('yyyy-MM-dd'))
-                     .map(datedist))
+                        .filterDate(date1.format('yyyy-MM-dd'), 
+                                    date2.format('yyyy-MM-dd'))
+                        .map(datedist))
 
     closest = tpw_collection.sort('DateDist').toList(2)
 
-    tpw1 = ee.Image(closest.get(0)).select('pr_wtr') if closest.size() else ee.Image.constant(-999.0)
-    tpw2 = ee.Image(closest.get(1)).select('pr_wtr') if ee.Number(closest.size()).gt(1) else tpw1
+    tpw1 = ee.Image(closest.get(0)).select('pr_wtr') \
+        if closest.size() else ee.Image.constant(-999.0)
+    tpw2 = ee.Image(closest.get(1)).select('pr_wtr') \
+        if ee.Number(closest.size()).gt(1) else tpw1
     
-    time1 = ee.Number(tpw1.get('DateDist')).divide(21600000) if ee.Number(closest.size()).gt(0) else ee.Number(1.0)
-    time2 = ee.Number(tpw2.get('DateDist')).divide(21600000) if ee.Number(closest.size()).gt(1) else ee.Number(0.0)
+    time1 = ee.Number(tpw1.get('DateDist')).divide(21600000) \
+        if ee.Number(closest.size()).gt(0) else ee.Number(1.0)
+    time2 = ee.Number(tpw2.get('DateDist')).divide(21600000) \
+        if ee.Number(closest.size()).gt(1) else ee.Number(0.0)
 
     tpw = tpw1.expression('tpw1*time2+tpw2*time1', {
         'tpw1': tpw1,

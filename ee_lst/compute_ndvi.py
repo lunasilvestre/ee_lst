@@ -1,4 +1,5 @@
-import ee
+# import ee
+
 
 def add_ndvi_band(landsat, image):
     """

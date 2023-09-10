@@ -1,13 +1,15 @@
 import ee
 from ee_lst.aster_bare_emiss import emiss_bare_band13, emiss_bare_band14
 
+
 def add_emissivity_band(landsat, use_ndvi, image):
     """
     Compute surface emissivity for a given Landsat image using ASTER and FVC.
 
     Parameters:
     - landsat (str): ID of the Landsat satellite (e.g., 'L8')
-    - use_ndvi (bool): If True, NDVI values are used to obtain a dynamic emissivity; 
+    - use_ndvi (bool): If True, NDVI values are used to 
+                        obtain a dynamic emissivity; 
                        if False, emissivity is obtained directly from ASTER
     - image (ee.Image): Input Landsat image with FVC band
 

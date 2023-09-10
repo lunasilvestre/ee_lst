@@ -1,4 +1,4 @@
-import ee
+# import ee
 
 def mask_sr(image):
     """
@@ -10,10 +10,11 @@ def mask_sr(image):
     Returns:
     - ee.Image: Cloud-masked Landsat image.
     """
-    # Placeholder for cloud mask logic. The actual logic will depend on the content of the original `cloudmask.js`.
-    # For example:
-    cloud_mask = image.select('QA_PIXEL').bitwiseAnd(1 << 3).eq(0)
+
+    cloud_mask = image.select('QA_PIXEL').bitwiseAnd(1 << 3) \
+                      .Or(image.select('QA_PIXEL').bitwiseAnd(1 << 4)).eq(0)
     return image.updateMask(cloud_mask)
+
 
 def mask_toa(image):
     """
@@ -25,7 +26,6 @@ def mask_toa(image):
     Returns:
     - ee.Image: Cloud-masked Landsat image.
     """
-    # Placeholder for cloud mask logic. The actual logic will depend on the content of the original `cloudmask.js`.
-    # For example:
+
     cloud_mask = image.select('QA_PIXEL').bitwiseAnd(1 << 3).eq(0)
     return image.updateMask(cloud_mask)

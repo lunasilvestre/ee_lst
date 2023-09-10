@@ -7,16 +7,19 @@ from ee_lst.aster_bare_emiss import (
     emiss_bare_band14
 )
 
+
 def add_band(dynamic, image):
     """
     Compute broad-band emissivity from ASTER GED.
 
     Parameters:
-    - dynamic (bool): If True, use vegetation cover correction. If False, use original ASTER GED emissivity.
+    - dynamic (bool): If True, use vegetation cover correction. 
+                      If False, use original ASTER GED emissivity.
     - image (ee.Image): Input image to clip the ASTER data to its geometry.
 
     Returns:
-    - ee.Image: Input image with an additional band 'BBE' for broad-band emissivity.
+    - ee.Image: Input image with an additional band 'BBE' 
+                for broad-band emissivity.
     """
     
     # Get ASTER emissivity
@@ -40,7 +43,8 @@ def add_band(dynamic, image):
     em14 = compute_emissivity('emissivity_band14', emiss_bare_band14)
     
     bbe = image.expression(
-        '0.128 + 0.014 * em10 + 0.145 * em11 + 0.241 * em12 + 0.467 * em13 + 0.004 * em14',
+        '0.128 + 0.014 * em10 + 0.145 * em11 + 0.241 * em12 + \
+            0.467 * em13 + 0.004 * em14',
         {'em10': em10, 'em11': em11, 'em12': em12, 'em13': em13, 'em14': em14}
     )
     

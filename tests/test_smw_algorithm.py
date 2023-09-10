@@ -1,8 +1,9 @@
-import pytest
+# import pytest
 from python_modules import SMWalgorithm
 
 # Mock data imports (you can replace these with actual data loading methods)
 # from data.input_data import load_test_image, expected_output_lst
+
 
 def load_test_image():
     """
@@ -11,12 +12,14 @@ def load_test_image():
     """
     return None  # Placeholder
 
+
 def expected_output_lst():
     """
     Mock function to get expected LST output for the test Landsat image.
     Replace this with actual expected output data.
     """
     return None  # Placeholder
+
 
 def test_add_band():
     """
@@ -31,7 +34,7 @@ def test_add_band():
     # Compare the result with the expected output
     expected_output = expected_output_lst()
     
-    # Assert that the result matches the expected output (this is a placeholder, adjust as needed)
-    assert result == expected_output, f"Expected {expected_output}, but got {result}"
-
-# Add more tests as needed for other functionalities in the SMWalgorithm module.
+    # Assert that the result matches the expected output 
+    # (this is a placeholder, adjust as needed)
+    assert result == expected_output, f"Expected {expected_output}, \
+        but got {result}"

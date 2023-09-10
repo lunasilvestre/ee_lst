@@ -12,6 +12,7 @@ aster_fvc = aster_ndvi.expression(
 aster_fvc = aster_fvc.where(aster_fvc.lt(0.0), 0.0)
 aster_fvc = aster_fvc.where(aster_fvc.gt(1.0), 1.0)
 
+
 def emiss_bare_band(band, image):
     """
     Calculate bare ground emissivity for a specific ASTER band.
@@ -31,18 +32,23 @@ def emiss_bare_band(band, image):
         }
     ).clip(image.geometry())
 
+
 # Define functions for each band
 def emiss_bare_band10(image):
     return emiss_bare_band('emissivity_band10', image)
 
+
 def emiss_bare_band11(image):
     return emiss_bare_band('emissivity_band11', image)
+
 
 def emiss_bare_band12(image):
     return emiss_bare_band('emissivity_band12', image)
 
+
 def emiss_bare_band13(image):
     return emiss_bare_band('emissivity_band13', image)
+
 
 def emiss_bare_band14(image):
     return emiss_bare_band('emissivity_band14', image)

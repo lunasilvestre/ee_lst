@@ -30,7 +30,8 @@
 				"vscode-icons-team.vscode-icons",
 				"googlecloudtools.cloudcode",
 				"redhat.vscode-yaml",
-				"johnpapa.vscode-cloak"
+				"johnpapa.vscode-cloak",
+				"ms-python.black-formatter"
 			]
 		}
 	}
