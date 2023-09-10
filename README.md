@@ -1,5 +1,7 @@
 # `ee_lst`
 
+![CI/CD Workflow](https://github.com/lunasilvestre/ee_lst/actions/workflows/ci.yml/badge.svg)
+
 `ee_lst` is a Python package designed to provide functionalities related to Land Surface Temperature (LST) computation using the Landsat series of satellites. This repository contains the source code, examples, and documentation for the package.
 
 This package is designed to expand the use of the original Google Earth Engine (GEE) code for Land Surface Temperature (LST) computation using the Landsat series of satellites. While the original code by [Sofia Ermida](https://github.com/sofiaermida) was implemented in JavaScript for the GEE environment, which primarily runs in the browser, this library brings the implementation to Python. This transition not only makes the code more versatile but also increases its reach to a broader audience familiar with Python. This repository contains the source code, examples, and documentation for the package. The original repository by Sofia Ermida can be found [here](https://github.com/sofiaermida/Landsat_SMW_LST).
