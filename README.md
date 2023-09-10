@@ -1,6 +1,8 @@
-# `ee_lst` Repository
+# `ee_lst`
 
-\`ee_lst\` is a Python package designed to provide functionalities related to Land Surface Temperature (LST) computation using the Landsat series of satellites. This repository contains the source code, examples, and documentation for the package.
+`ee_lst` is a Python package designed to provide functionalities related to Land Surface Temperature (LST) computation using the Landsat series of satellites. This repository contains the source code, examples, and documentation for the package.
+
+This package is designed to expand the use of the original Google Earth Engine (GEE) code for Land Surface Temperature (LST) computation using the Landsat series of satellites. While the original code by [Sofia Ermida](https://github.com/sofiaermida) was implemented in JavaScript for the GEE environment, which primarily runs in the browser, this library brings the implementation to Python. This transition not only makes the code more versatile but also increases its reach to a broader audience familiar with Python. This repository contains the source code, examples, and documentation for the package. The original repository by Sofia Ermida can be found [here](https://github.com/sofiaermida/Landsat_SMW_LST).
 
 ## Table of Contents
 
@@ -54,11 +56,11 @@ python examples/example_1.py
 
 ## Documentation
 
-The documentation for the \`ee_lst\` package can be found in the \`docs\` directory.
+The documentation for the `ee_lst` package can be found in the `docs` directory. A copy of Sofia Ermida's [paper](https://doi.org/10.3390/rs12091471) (see **Reference** below) is also made available in the `docs` folder.
 
 ## Testing
 
-Tests for the package functionalities are located in the \`tests\` directory. To run the tests:
+Tests for the package functionalities are located in the `tests` directory. To run the tests:
 
 ```
 # Navigate to the tests directory
