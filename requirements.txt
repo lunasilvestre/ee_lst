@@ -4,5 +4,5 @@ rasterio
 satpy
 dask
 google-api-python-client
-pyCrypto
+pycryptodome
 earthengine-api
