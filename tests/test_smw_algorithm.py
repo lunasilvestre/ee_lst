@@ -29,12 +29,14 @@ def test_add_band():
     test_image = load_test_image()
 
     # Compute LST using the refactored function
-    result = smw_algorithm.add_band('L8', test_image)  # Example for Landsat 8
+    result = smw_algorithm.add_band("L8", test_image)  # Example for Landsat 8
 
     # Compare the result with the expected output
     expected_output = expected_output_lst()
 
     # Assert that the result matches the expected output
     # (this is a placeholder, adjust as needed)
-    assert result == expected_output, f"Expected {expected_output}, \
+    assert (
+        result == expected_output
+    ), f"Expected {expected_output}, \
         but got {result}"

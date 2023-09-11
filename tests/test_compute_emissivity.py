@@ -31,12 +31,14 @@ def test_add_band():
 
     # Compute emissivity using the refactored function
     # Example for Landsat 8 with use_ndvi=True
-    result = compute_emissivity.add_band('L8', True, test_image)
+    result = compute_emissivity.add_band("L8", True, test_image)
 
     # Compare the result with the expected output
     expected_output = expected_output_em()
 
     # Assert that the result matches the expected output
     # (this is a placeholder, adjust as needed)
-    assert result == expected_output, f"Expected {expected_output}, \
+    assert (
+        result == expected_output
+    ), f"Expected {expected_output}, \
         but got {result}"
