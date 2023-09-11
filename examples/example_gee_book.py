@@ -1,5 +1,8 @@
 import ee
 import geopandas as gpd
+# Define the Landsat LST module (assuming you've refactored it to Python)
+from ee_lst.landsat_lst import collection as landsat_collection
+import folium
 
 # Initialize the Earth Engine API
 ee.Initialize()
@@ -7,9 +10,6 @@ ee.Initialize()
 # Load the KML file using geopandas
 gdf = gpd.read_file('path_to_your_kml_file.kml')
 geometry = ee.Geometry.Polygon(gdf.geometry[0].exterior.coords[:])
-
-# Define the Landsat LST module (assuming you've refactored it to Python)
-from python_modules.Landsat_LST import collection as landsat_collection
 
 # Define parameters
 satellite = 'L8'
@@ -21,9 +21,11 @@ use_ndvi = True
 sum_filter = ee.Filter.dayOfYear(152, 243)
 
 # Get Landsat collection with additional necessary variables
-landsat_coll = landsat_collection(satellite, date_start, date_end, geometry, use_ndvi)
+landsat_coll = landsat_collection(satellite, date_start, date_end,
+                                  geometry, use_ndvi)
 
 # Create composite, clip, filter to summer, mask, and convert to degree Celsius
+not_water = True
 landsat_comp = (landsat_coll
                 .select('LST')
                 .filter(sum_filter)
@@ -32,10 +34,10 @@ landsat_comp = (landsat_coll
                 .updateMask(not_water)  # Define the not_water mask
                 .subtract(273.15))
 
-# To visualize the result on a map, you'd typically use a library like folium or ipyleaflet
+# To visualize the result on a map, you'd typically
+# use a library like folium or ipyleaflet
 # Here's a basic example using folium:
 
-import folium
 
 # Define a method to display Earth Engine image tiles
 def add_ee_layer(self, ee_image_object, vis_params, name):
@@ -47,6 +49,7 @@ def add_ee_layer(self, ee_image_object, vis_params, name):
         overlay=True,
         control=True
     ).add_to(self)
+
 
 # Add EE drawing method to folium
 folium.Map.add_ee_layer = add_ee_layer

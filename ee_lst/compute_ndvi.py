@@ -12,7 +12,7 @@ def add_ndvi_band(landsat, image):
     Returns:
     - ee.Image: Image with added NDVI band
     """
-    
+
     # Choose bands based on the Landsat satellite ID
     if landsat in ['L8', 'L9']:
         nir = 'SR_B5'
@@ -20,7 +20,7 @@ def add_ndvi_band(landsat, image):
     else:
         nir = 'SR_B4'
         red = 'SR_B3'
-    
+
     # Compute NDVI
     ndvi = image.expression(
         '(nir - red) / (nir + red)',
@@ -29,5 +29,5 @@ def add_ndvi_band(landsat, image):
             'red': image.select(red).multiply(0.0000275).add(-0.2)
         }
     ).rename('NDVI')
-    
+
     return image.addBands(ndvi)

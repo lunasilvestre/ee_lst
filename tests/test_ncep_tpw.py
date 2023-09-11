@@ -1,5 +1,5 @@
 # import pytest
-from python_modules import NCEP_TPW
+from ee_lst import NCEP_TPW
 
 # Mock data imports (you can replace these with actual data loading methods)
 # from data.input_data import load_test_image
@@ -27,14 +27,14 @@ def test_add_band():
     """
     # Load test data
     test_image = load_test_image()
-    
+
     # Compute TPW using the refactored function
     result = NCEP_TPW.add_band(test_image)
-    
+
     # Compare the result with the expected output
     expected_output = expected_TPW_output()
-    
-    # Assert that the result matches the expected output 
+
+    # Assert that the result matches the expected output
     # (this is a placeholder, adjust as needed)
     assert result == expected_output, f"Expected {expected_output}, \
         but got {result}"

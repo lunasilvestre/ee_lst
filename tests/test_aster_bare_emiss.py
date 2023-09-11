@@ -1,5 +1,5 @@
 # import pytest
-from python_modules import ASTER_bare_emiss
+from ee_lst import ASTER_bare_emiss
 
 # Mock data imports (you can replace these with actual data loading methods)
 # from data.input_data import load_test_image, expected_output_emissivity
@@ -27,15 +27,14 @@ def test_emiss_bare_band10():
     """
     # Load test data
     test_image = load_test_image()
-    
+
     # Compute emissivity using the refactored function
     result = ASTER_bare_emiss.emiss_bare_band10(test_image)
-    
+
     # Compare the result with the expected output
     expected_output = expected_output_emissivity()
-    
-    # Assert that the result matches the expected output 
+
+    # Assert that the result matches the expected output
     # (this is a placeholder, adjust as needed)
     assert result == expected_output, f"Expected {expected_output}, \
         but got {result}"
-

@@ -22,17 +22,17 @@ def add_lst_band(landsat, image):
     Returns:
     - ee.Image: Image with added LST band
     """
-    
+
     # Select algorithm coefficients
     # Default to L9 if not found
-    coeff_SMW = SMW_COEFFICIENTS.get(landsat, 
-                                     SMW_COEFFICIENTS['L9'])  
-    
+    coeff_SMW = SMW_COEFFICIENTS.get(landsat,
+                                     SMW_COEFFICIENTS['L9'])
+
     # Create lookups for the algorithm coefficients
     A_lookup = get_lookup_table(coeff_SMW, 'TPWpos', 'A')
     B_lookup = get_lookup_table(coeff_SMW, 'TPWpos', 'B')
     C_lookup = get_lookup_table(coeff_SMW, 'TPWpos', 'C')
-  
+
     # Map coefficients to the image using the TPW bin position
     A_img = image.remap(A_lookup[0], A_lookup[1], 0.0, 'TPWpos') \
         .resample('bilinear')
@@ -40,10 +40,10 @@ def add_lst_band(landsat, image):
         .resample('bilinear')
     C_img = image.remap(C_lookup[0], C_lookup[1], 0.0, 'TPWpos') \
         .resample('bilinear')
-    
+
     # Select TIR band
     tir = LANDSAT_BANDS[landsat]['TIR'][0]
-    
+
     # Compute the LST
     lst = image.expression(
         'A * Tb1 / em1 + B / em1 + C',
@@ -55,5 +55,5 @@ def add_lst_band(landsat, image):
             'Tb1': image.select(tir)
         }
     ).updateMask(image.select('TPW').lt(0).Not())
-    
+
     return image.addBands(lst.rename('LST'))

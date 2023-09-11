@@ -4,7 +4,7 @@ LANDSAT_BANDS = {
         'TOA': 'LANDSAT/LT04/C02/T1_TOA',
         'SR': 'LANDSAT/LT04/C02/T1_L2',
         'TIR': ['B6'],
-        'VISW': ['SR_B1', 'SR_B2', 'SR_B3', 'SR_B4', 'SR_B5', 'SR_B7', 
+        'VISW': ['SR_B1', 'SR_B2', 'SR_B3', 'SR_B4', 'SR_B5', 'SR_B7',
                  'QA_PIXEL']
     },
     'L5': {
