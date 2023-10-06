@@ -5,7 +5,6 @@ import numpy as np
 
 def compare_images(img_path1, img_path2):
     with rst.open(img_path1) as src1, rst.open(img_path2) as src2:
-
         # Check and report size difference
         h1, w1 = src1.shape
         h2, w2 = src2.shape
@@ -27,9 +26,11 @@ def compare_images(img_path1, img_path2):
         start_row_2 = h2 - target_h
 
         data1 = src1.read(
-            1, window=rst.windows.Window(0, start_row_1, target_w, target_h))
+            1, window=rst.windows.Window(0, start_row_1, target_w, target_h)
+        )
         data2 = src2.read(
-            1, window=rst.windows.Window(0, start_row_2, target_w, target_h))
+            1, window=rst.windows.Window(0, start_row_2, target_w, target_h)
+        )
 
         # Calculate the difference
         difference = data1 - data2
@@ -66,8 +67,8 @@ if __name__ == "__main__":
     # img2_path = "./nodejs_downloads/LST.tif"
     # compare_images(img1_path, img2_path)
 
-    dir1 = './nodejs_downloads'
-    dir2 = './python_downloads'
+    dir1 = "./nodejs_downloads"
+    dir2 = "./python_downloads"
 
     for filename in os.listdir(dir1):
         if filename.endswith(".tif"):
@@ -77,6 +78,6 @@ if __name__ == "__main__":
             if os.path.exists(img2_path):
                 print(f"Comparing {filename}...")
                 compare_images(img1_path, img2_path)
-                print('-' * 40)
+                print("-" * 40)
             else:
                 print(f"Warning: {filename} not found in {dir2}. Skipping comparison.")
