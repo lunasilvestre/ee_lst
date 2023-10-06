@@ -17,10 +17,10 @@ COPY package*.json ./
 RUN npm install
 
 # Copy the rest of the application to the container
-COPY example_1_node.js ./
+COPY ./example_1_node.js ./
 
 # Copy Bash script to adapt the modules to run stand-alone in NodeJS
-COPY modify_files.sh ./modules
+COPY ./modify_files.sh ./modules
 RUN chmod +x ./modules/modify_files.sh
 
 # Run the adapt the modules script
