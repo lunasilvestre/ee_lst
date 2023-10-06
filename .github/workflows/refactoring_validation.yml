@@ -26,16 +26,16 @@ jobs:
 
       - name: Build and run original library Docker container
         run: |
-          docker build -f docker/Dockerfile.landsat_lst -t node_lst .
+          docker build -f validation/Dockerfile.landsat_lst -t node_lst .
           docker run -v ./.gee-sa-priv-key.json:/app/.gee-sa-priv-key.json -v $PWD/nodejs_downloads:/app/downloads node_lst
 
       - name: Build and run current library Docker container
         run: |
-          docker build -f docker/Dockerfile.ee_lst -t python_lst .
+          docker build -f validation/Dockerfile.ee_lst -t python_lst .
           docker run -v ./.gee-sa-priv-key.json:/app/.gee-sa-priv-key.json -v $PWD/python_downloads:/app/downloads python_lst
 
       - name: Install dependencies
         run: pip install rasterio
 
       - name: Compare results
-        run: python3 geotiffs_comparison.py
+        run: python3 validation/geotiffs_comparison.py
