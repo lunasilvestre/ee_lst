@@ -1,0 +1,41 @@
+name: Refactoring Validation
+
+on:
+  push:
+    branches:
+      - main
+  schedule:
+    - cron: '0 0 * * 0'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    environment: RefactoringValidationEnv
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up credentials
+        run: echo "${{ secrets.GCP_SA_KEY }}" > ./.gee-sa-priv-key.json
+
+      - name: Create directories for downloads
+        run: |
+          mkdir nodejs_downloads
+          mkdir python_downloads        
+
+      - name: Build and run original library Docker container
+        run: |
+          docker build -f docker/Dockerfile.landsat_lst -t node_lst .
+          docker run -v ./.gee-sa-priv-key.json:/app/.gee-sa-priv-key.json -v $PWD/nodejs_downloads:/app/downloads node_lst
+
+      - name: Build and run current library Docker container
+        run: |
+          docker build -f docker/Dockerfile.ee_lst -t python_lst .
+          docker run -v ./.gee-sa-priv-key.json:/app/.gee-sa-priv-key.json -v $PWD/python_downloads:/app/downloads python_lst
+
+      - name: Install dependencies
+        run: pip install rasterio
+
+      - name: Compare results
+        run: python3 geotiffs_comparison.py

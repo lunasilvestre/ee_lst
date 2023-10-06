@@ -1,5 +1,5 @@
 # import pytest
-from ee_lst import NCEP_TPW
+from modules import ncep_tpw
 
 # Mock data imports (you can replace these with actual data loading methods)
 # from data.input_data import load_test_image

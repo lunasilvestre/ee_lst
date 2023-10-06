@@ -1,8 +1,5 @@
-numpy
-pandas
-rasterio
-satpy
-dask
 google-api-python-client
 pycryptodome
 earthengine-api
+google-auth
+rasterio

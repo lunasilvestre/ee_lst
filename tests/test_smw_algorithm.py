@@ -1,5 +1,5 @@
 # import pytest
-from ee_lst import smw_algorithm
+from modules import smw_algorithm
 
 # Mock data imports (you can replace these with actual data loading methods)
 # from data.input_data import load_test_image, expected_output_lst

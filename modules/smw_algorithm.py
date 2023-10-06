@@ -1,5 +1,5 @@
 # import ee
-from ee_lst.constants import SMW_COEFFICIENTS, LANDSAT_BANDS
+from modules.constants import SMW_COEFFICIENTS, LANDSAT_BANDS
 
 
 def get_lookup_table(coeff, prop_1, prop_2):

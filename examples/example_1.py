@@ -11,7 +11,7 @@ if not ee.data._initialized:
         ee.Initialize()
 
 # Define the Landsat LST module (assuming you've refactored it to Python)
-from ee_lst.landsat_lst import fetch_landsat_collection
+from modules.landsat_lst import fetch_landsat_collection
 
 # Define parameters
 geometry = ee.Geometry.Rectangle([-8.91, 40.0, -8.3, 40.4])
@@ -91,3 +91,4 @@ my_map.add_ee_layer(
 #                                      region=geometry,
 #                                      fileFormat='GeoTIFF')
 # task.start()
+

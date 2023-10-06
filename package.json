@@ -1,0 +1,14 @@
+{
+  "name": "landsat_smw_lst",
+  "version": "1.0.0",
+  "description": "**NOTE**: This repository has been archived and is no longer actively maintained. The project has evolved and shifted its primary focus to Python. As a result, it has been moved to a new independent repository. Please visit [ee_lst](https://github.com/lunasilvestre/ee_lst) for the active project.",
+  "main": "example_1_node.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@google/earthengine": "^0.1.368"
+  }
+}

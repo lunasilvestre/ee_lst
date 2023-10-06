@@ -1,11 +1,15 @@
 import ee
-from ee_lst.ncep_tpw import add_tpw_band
-from ee_lst.cloudmask import mask_sr
-from ee_lst.compute_ndvi import add_ndvi_band
-from ee_lst.compute_fvc import add_fvc_band
-from ee_lst.compute_emissivity import add_emissivity_band
-from ee_lst.smw_algorithm import add_lst_band
-from ee_lst.constants import LANDSAT_BANDS
+import os
+from modules.ncep_tpw import add_tpw_band
+from modules.cloudmask import mask_sr
+from modules.compute_ndvi import add_ndvi_band
+from modules.compute_fvc import add_fvc_band
+from modules.compute_emissivity import add_emissivity_band
+from modules.smw_algorithm import add_lst_band
+from modules.constants import LANDSAT_BANDS
+
+# Set the path to the service account key file
+os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "../.gee-sa-priv-key.json"
 
 
 def initialize_ee():

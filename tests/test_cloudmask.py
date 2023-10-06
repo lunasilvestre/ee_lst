@@ -1,5 +1,5 @@
 # import pytest
-from ee_lst import cloudmask
+from modules import cloudmask
 
 # Mock data imports (you can replace these with actual data loading methods)
 # from data.input_data import load_test_image_sr, load_test_image_toa,

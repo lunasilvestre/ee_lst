@@ -1,5 +1,5 @@
 import ee
-from ee_lst.aster_bare_emiss import emiss_bare_band13, emiss_bare_band14
+from modules.aster_bare_emiss import emiss_bare_band13, emiss_bare_band14
 
 
 def add_emissivity_band(landsat, use_ndvi, image):

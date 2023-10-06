@@ -10,10 +10,7 @@ setup(
     packages=find_packages(),
     install_requires=[
         "numpy",
-        "pandas",
         "rasterio",
-        "satpy",
-        "dask",
         "google-api-python-client",
         "pyCrypto",
         "earthengine-api"

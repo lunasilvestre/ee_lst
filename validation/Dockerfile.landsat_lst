@@ -1,0 +1,30 @@
+# Use an official Node.js runtime as the base image
+FROM node:14
+
+# Set the working directory in the container
+WORKDIR /app
+
+# Clone the original library from github
+RUN git clone https://github.com/sofiaermida/Landsat_SMW_LST.git .
+
+# Create a downloads directory
+RUN mkdir -p /app/downloads
+
+# Copy the package.json and package-lock.json files to the container
+COPY package*.json ./
+
+# Install the project's dependencies inside the container
+RUN npm install
+
+# Copy the rest of the application to the container
+COPY example_1_node.js ./
+
+# Copy Bash script to adapt the modules to run stand-alone in NodeJS
+COPY modify_files.sh ./modules
+RUN chmod +x ./modules/modify_files.sh
+
+# Run the adapt the modules script
+RUN ./modules/modify_files.sh
+
+# Specify the command to run when the container starts
+CMD [ "node", "example_1_node.js" ]
