@@ -31,11 +31,11 @@ jobs:
 
     - name: Lint with flake8
       run: |
-        flake8 ee_lst/ tests/
+        flake8 modules/ tests/ examples/ validation/
 
     - name: Check code formatting with black
       run: |
-        black --check ee_lst/ tests/
+        black --check modules/ tests/ examples/ validation/
 
     # - name: Run tests
     #   run: |

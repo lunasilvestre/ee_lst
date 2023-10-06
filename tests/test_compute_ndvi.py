@@ -29,7 +29,7 @@ def test_add_band():
     test_image = load_test_image()
 
     # Compute NDVI using the refactored function
-    result = compute_NDVI.add_band("L8", test_image)  # Example for Landsat 8
+    result = compute_ndvi.add_band("L8", test_image)  # Example for Landsat 8
 
     # Compare the result with the expected output
     expected_output = expected_output_ndvi()

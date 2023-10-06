@@ -19,7 +19,8 @@ SCOPES = [
 
 def initialize_services(service_account_file):
     """Initialize Earth Engine and Google Drive services."""
-    credentials = service_account.Credentials.from_service_account_file(service_account_file, scopes=SCOPES)
+    credentials = service_account.Credentials.from_service_account_file(
+        service_account_file, scopes=SCOPES)
     ee.Initialize(credentials)
     return build('drive', 'v3', credentials=credentials)
 
@@ -93,7 +94,9 @@ def download_files(service, folder_name, download_path):
         done = False
         while done is False:
             status, done = downloader.next_chunk()
-            print(f"Downloaded {int(status.progress() * 100)}% of {file_name}")
+            msg = "Downloaded "
+            msg += f"{int(status.progress() * 100)}% of {file_name}"
+            print(msg)
 
     print(f"All files downloaded to {download_path}")
 
@@ -121,14 +124,21 @@ def process_data(drive_service, folder_name):
         cmap2 = ["F2F2F2", "EFC2B3", "ECB176", "E9BD3A", "E6E600", "63C600", "00A600"]
 
         visualizations = [
-            {'bands': ['TPW'], 'min': 0.0, 'max': 60.0, 'palette': cmap1, 'description': 'TCWV'},
-            {'bands': ['TPWpos'], 'min': 0.0, 'max': 9.0, 'palette': cmap1, 'description': 'TCWVpos'},
-            {'bands': ['FVC'], 'min': 0.0, 'max': 1.0, 'palette': cmap2, 'description': 'FVC'},
-            {'bands': ['EM'], 'min': 0.9, 'max': 1.0, 'palette': cmap1, 'description': 'Emissivity'},
-            {'bands': ['B10'], 'min': 290, 'max': 320, 'palette': cmap1, 'description': 'TIR_BT'},
-            {'bands': ['LST'], 'min': 290, 'max': 320, 'palette': cmap1, 'description': 'LST'},
+            {'bands': ['TPW'], 'min': 0.0, 'max': 60.0, 'palette': cmap1,
+             'description': 'TCWV'},
+            {'bands': ['TPWpos'], 'min': 0.0, 'max': 9.0, 'palette': cmap1,
+             'description': 'TCWVpos'},
+            {'bands': ['FVC'], 'min': 0.0, 'max': 1.0, 'palette': cmap2,
+             'description': 'FVC'},
+            {'bands': ['EM'], 'min': 0.9, 'max': 1.0, 'palette': cmap1,
+             'description': 'Emissivity'},
+            {'bands': ['B10'], 'min': 290, 'max': 320, 'palette': cmap1,
+             'description': 'TIR_BT'},
+            {'bands': ['LST'], 'min': 290, 'max': 320, 'palette': cmap1,
+             'description': 'LST'},
             {'bands': ['LST'], 'description': 'LST_Celsius_Raw'},
-            {'bands': ['SR_B4', 'SR_B3', 'SR_B2'], 'min': 0, 'max': 0.3, 'description': 'RGB'},
+            {'bands': ['SR_B4', 'SR_B3', 'SR_B2'], 'min': 0, 'max': 0.3,
+             'description': 'RGB'},
         ]
 
         for vis in visualizations:
@@ -173,11 +183,11 @@ def process_data(drive_service, folder_name):
 
 if __name__ == "__main__":
     drive_service = initialize_services(service_account_file)
-    
+
     # Clean the folder in Google Drive
     clean_folder(drive_service, folder_name)
-    
+
     process_data(drive_service, folder_name)
-    
+
     # Download files to the container
     download_files(drive_service, folder_name, local_download_path)

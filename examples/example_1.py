@@ -91,4 +91,3 @@ my_map.add_ee_layer(
 #                                      region=geometry,
 #                                      fileFormat='GeoTIFF')
 # task.start()
-

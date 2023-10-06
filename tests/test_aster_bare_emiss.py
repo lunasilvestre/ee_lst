@@ -29,7 +29,7 @@ def test_emiss_bare_band10():
     test_image = load_test_image()
 
     # Compute emissivity using the refactored function
-    result = ASTER_bare_emiss.emiss_bare_band10(test_image)
+    result = aster_bare_emiss.emiss_bare_band10(test_image)
 
     # Compare the result with the expected output
     expected_output = expected_output_emissivity()

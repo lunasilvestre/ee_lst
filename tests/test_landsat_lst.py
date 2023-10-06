@@ -29,7 +29,7 @@ def test_compute_LST():
     test_image = load_test_image()
 
     # Compute LST using the refactored function
-    result = Landsat_LST.compute_LST("L8", test_image)
+    result = landsat_lst.compute_LST("L8", test_image)
 
     # Compare the result with the expected output
     expected_output = expected_LST_output()

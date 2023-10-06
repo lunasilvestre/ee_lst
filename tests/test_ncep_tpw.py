@@ -29,7 +29,7 @@ def test_add_band():
     test_image = load_test_image()
 
     # Compute TPW using the refactored function
-    result = NCEP_TPW.add_band(test_image)
+    result = ncep_tpw.add_band(test_image)
 
     # Compare the result with the expected output
     expected_output = expected_TPW_output()

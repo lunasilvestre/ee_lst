@@ -3,7 +3,8 @@ from setuptools import setup, find_packages
 setup(
     name="ee_lst",
     version="0.1.0",
-    description="Python library for Landsat Surface Temperature with Google Earth Engine",
+    description="Python library for Landsat Surface\
+        Temperature with Google Earth Engine",
     author="Nelson Luna Silvestre",
     author_email="lunasilvestre@mailbox.org",
     url="https://github.com/lunasilvestre/ee_lst",
