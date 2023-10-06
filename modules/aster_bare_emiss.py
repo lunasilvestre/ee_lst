@@ -1,9 +1,11 @@
 import ee
 
+
 # Load ASTER emissivity
 # aster = ee.Image("NASA/ASTER_GED/AG100_003")
 def get_aster_image():
     return ee.Image("NASA/ASTER_GED/AG100_003")
+
 
 # Calculate ASTER FVC from NDVI
 def get_aster_fvc():
@@ -16,6 +18,7 @@ def get_aster_fvc():
     aster_fvc = aster_fvc.where(aster_fvc.lt(0.0), 0.0)
     aster_fvc = aster_fvc.where(aster_fvc.gt(1.0), 1.0)
     return aster_fvc
+
 
 def emiss_bare_band(band, image):
     """
