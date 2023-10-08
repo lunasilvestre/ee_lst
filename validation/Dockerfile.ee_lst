@@ -15,7 +15,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy the modules directory and the example script into the container
 COPY ../modules /app/modules
-COPY ./example_1_service_account.py /app/example_1_service_account.py
+COPY validation/example_1_service_account.py ./
 
 # Run the Python script when the container launches
 CMD ["python", "example_1_service_account.py"]
