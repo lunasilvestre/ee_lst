@@ -31,7 +31,7 @@ jobs:
 
     - name: Lint with flake8
       run: |
-        flake8 modules/ tests/ examples/ validation/
+        flake8 ee_lst/ tests/ examples/ validation/
 
     - name: Check code formatting with black
       run: |
