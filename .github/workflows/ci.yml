@@ -35,7 +35,7 @@ jobs:
 
     - name: Check code formatting with black
       run: |
-        black --check modules/ tests/ examples/ validation/
+        black --check ee_lst/ tests/ examples/ validation/
 
     # - name: Run tests
     #   run: |
