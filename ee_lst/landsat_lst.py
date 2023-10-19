@@ -1,12 +1,12 @@
 import ee
 import os
-from modules.ncep_tpw import add_tpw_band
-from modules.cloudmask import mask_sr
-from modules.compute_ndvi import add_ndvi_band
-from modules.compute_fvc import add_fvc_band
-from modules.compute_emissivity import add_emissivity_band
-from modules.smw_algorithm import add_lst_band
-from modules.constants import LANDSAT_BANDS
+from ee_lst.ncep_tpw import add_tpw_band
+from ee_lst.cloudmask import mask_sr
+from ee_lst.compute_ndvi import add_ndvi_band
+from ee_lst.compute_fvc import add_fvc_band
+from ee_lst.compute_emissivity import add_emissivity_band
+from ee_lst.smw_algorithm import add_lst_band
+from ee_lst.constants import LANDSAT_BANDS
 
 # Set the path to the service account key file
 os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "../.gee-sa-priv-key.json"
@@ -20,6 +20,21 @@ def initialize_ee():
             print("Please authenticate Google Earth Engine first.")
             ee.Authenticate()
             ee.Initialize()
+
+
+def add_timestamp(image):
+    timestamp = image.getNumber('system:time_start')
+    return image.addBands(ee.Image.constant(timestamp).rename('TIMESTAMP'))
+    # # Convert the system:time_start property to a human-readable string
+    # timestamp_string = ee.Date(image.get("system:time_start")).format(
+    #     "YYYY-MM-DD HH:mm:ss"
+    # )
+    # # Set the timestamp string as a new property on the image
+    # return image.set("timestamp", timestamp_string)
+
+
+def add_raw_timestamp(image):
+    return image.set("raw_timestamp", image.get("system:time_start"))
 
 
 def fetch_landsat_collection(landsat, date_start, date_end, geometry, use_ndvi):
@@ -75,5 +90,8 @@ def fetch_landsat_collection(landsat, date_start, date_end, geometry, use_ndvi):
 
     # Compute the LST
     landsat_lst = landsat_all.map(lambda image: add_lst_band(landsat, image))
+
+    # Add timestamp to each image in the collection
+    landsat_lst = landsat_lst.map(add_timestamp) #.map(add_raw_timestamp)
 
     return landsat_lst

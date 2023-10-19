@@ -2,7 +2,7 @@ import ee
 import time
 from google.oauth2 import service_account
 from googleapiclient.discovery import build
-from modules.landsat_lst import fetch_landsat_collection
+from ee_lst.landsat_lst import fetch_landsat_collection
 import io
 from googleapiclient.http import MediaIoBaseDownload
 

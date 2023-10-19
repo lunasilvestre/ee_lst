@@ -1,5 +1,5 @@
 # import pytest
-from modules import broadband_emiss
+from ee_lst import broadband_emiss
 
 # Mock data imports (you can replace these with actual data loading methods)
 # from data.input_data import load_test_image, expected_output_bbe

@@ -1,5 +1,5 @@
 # import pytest
-from modules import compute_fvc
+from ee_lst import compute_fvc
 
 # Mock data imports (you can replace these with actual data loading methods)
 # from data.input_data import load_test_image, expected_output_fvc
