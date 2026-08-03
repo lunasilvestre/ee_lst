@@ -1,6 +1,6 @@
 {
 	"name": "Python 3 for LST Refactoring",
-	"image": "mcr.microsoft.com/devcontainers/python:0-3.9",
+	"image": "mcr.microsoft.com/devcontainers/python:1-3.13",
 	"features": {
 		"ghcr.io/devcontainers/features/docker-in-docker:2": {},
 		"ghcr.io/devcontainers/features/python:1": {},
@@ -9,7 +9,7 @@
 		"ghcr.io/eitsupi/devcontainer-features/jq-likes:1": {},
 		"ghcr.io/dhoeric/features/google-cloud-cli:1": {}
 	},
-	"postCreateCommand": "pip install numpy pandas rasterio satpy dask google-api-python-client pyCrypto earthengine-api",
+	"postCreateCommand": "pip install -e . -r requirements.txt -r requirements-dev.txt",
 	"customizations": {
 		"vscode": {
 			"extensions": [

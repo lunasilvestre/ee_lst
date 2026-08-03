@@ -1,5 +1,25 @@
-google-api-python-client
-pycryptodome
+# Full working environment for this repo: the library plus everything the
+# validation harness and the examples need.
+#
+# The library alone needs far less - see install_requires in setup.py.
+# `pip install .` is the minimal install; this file is the superset.
+
+# --- the ee_lst package itself ------------------------------------------------
+# Keep in sync with install_requires in setup.py.
 earthengine-api
+
+# --- imported by name in validation/example_1_service_account.py --------------
+# Both also arrive transitively via earthengine-api, but the code imports them
+# directly (googleapiclient.discovery, google.oauth2.service_account), so they
+# are declared rather than relied on as a transitive accident.
+google-api-python-client
 google-auth
+
+# --- validation/geotiffs_comparison.py ----------------------------------------
+numpy
 rasterio
+
+# --- examples/example_1.py ----------------------------------------------------
+# Was missing entirely: the example the README tells people to run imports
+# folium, and nothing installed it.
+folium

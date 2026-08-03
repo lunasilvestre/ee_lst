@@ -45,3 +45,49 @@ jobs:
     # - name: Run tests
     #   run: |
     #     python -m pytest tests/
+
+  # The lint job installs requirements.txt and never touches setup.py, so it
+  # cannot catch a broken install_requires - that is exactly how the pyCrypto
+  # breakage survived. This job installs the package the way a user would.
+  install:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ['3.12', '3.13']
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v7
+
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v7
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Install the package into a clean venv
+      run: |
+        python -m venv /tmp/smoke
+        /tmp/smoke/bin/python -m pip install --upgrade pip
+        /tmp/smoke/bin/pip install .
+
+    - name: Import smoke test
+      # Run from outside the repo: importing from the source tree would pass
+      # even if the package were built or declared wrongly.
+      working-directory: /tmp
+      run: |
+        /tmp/smoke/bin/python -c "
+        import ee_lst.landsat_lst as m
+        assert 'site-packages' in m.__file__, m.__file__
+        print('imported installed package:', m.__file__)
+        "
+
+    - name: Package must not ship an 'examples' module
+      # A bare find_packages() used to install examples/ as a top-level package.
+      working-directory: /tmp
+      run: |
+        /tmp/smoke/bin/python -c "
+        import importlib.util as u, sys
+        assert u.find_spec('examples') is None, 'examples/ leaked into the wheel'
+        print('no top-level examples package: OK')
+        "
