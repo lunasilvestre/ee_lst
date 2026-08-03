@@ -1,0 +1,7 @@
+# Development / CI tooling. Pinned exactly so local runs and CI cannot drift:
+# an unpinned linter turns CI red on its own release schedule, with no commit.
+#
+# black MUST carry the [jupyter] extra. Bare black silently skips .ipynb files,
+# so examples/example_1.ipynb would be formatted locally and unchecked in CI.
+black[jupyter]==26.5.1
+flake8==7.3.0

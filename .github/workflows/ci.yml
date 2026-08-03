@@ -8,18 +8,20 @@ jobs:
 
     steps:
     - name: Checkout Code
-      uses: actions/checkout@v2
+      uses: actions/checkout@v4
 
     - name: Set up Python
-      uses: actions/setup-python@v2
+      uses: actions/setup-python@v5
       with:
-        python-version: '3.x'
+        # Pinned, not '3.x'. A floating version silently drifts onto a new
+        # release and turns a passing build red months after the last commit.
+        python-version: '3.13'
 
     - name: Cache Python dependencies
-      uses: actions/cache@v2
+      uses: actions/cache@v4
       with:
         path: ~/.cache/pip
-        key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}
+        key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt', 'requirements-dev.txt') }}
         restore-keys: |
           ${{ runner.os }}-pip-
 
@@ -27,7 +29,7 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
-        pip install flake8 black
+        pip install -r requirements-dev.txt
 
     - name: Lint with flake8
       run: |
@@ -37,6 +39,9 @@ jobs:
       run: |
         black --check ee_lst/ tests/ examples/ validation/
 
+    # Stays commented until phase 3 replaces the placeholder tests.
+    # All 10 test functions currently fail: 8 call functions that do not
+    # exist, 2 call live Earth Engine. See .refresh/baseline.md.
     # - name: Run tests
     #   run: |
     #     python -m pytest tests/
