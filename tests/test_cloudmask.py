@@ -1,81 +1,68 @@
-# import pytest
-from ee_lst import cloudmask
+"""cloudmask.mask_sr / cloudmask.mask_toa
 
-# Mock data imports (you can replace these with actual data loading methods)
-# from data.input_data import load_test_image_sr, load_test_image_toa,
-# expected_output_sr, expected_output_toa
+QA_PIXEL is a bitmask. Bit 3 is cloud, bit 4 is cloud shadow. The two functions
+differ in exactly one respect: the surface-reflectance mask drops shadow too,
+the top-of-atmosphere mask does not. That difference is the thing worth pinning.
+"""
 
+from ee_lst.cloudmask import mask_sr, mask_toa
+from tests.conftest import numeric_args, selected_bands
 
-def load_test_image_sr():
-    """
-    Mock function to load a test surface reflectance image.
-    Replace this with actual data loading logic.
-    """
-    return None  # Placeholder
+CLOUD_BIT = 1 << 3  # 8
+SHADOW_BIT = 1 << 4  # 16
 
 
-def load_test_image_toa():
-    """
-    Mock function to load a test top-of-atmosphere reflectance image.
-    Replace this with actual data loading logic.
-    """
-    return None  # Placeholder
+def test_mask_sr_reads_qa_pixel(image):
+    mask_sr(image)
+    assert selected_bands(image) == ["QA_PIXEL", "QA_PIXEL"]
 
 
-def expected_output_sr():
-    """
-    Mock function to get expected output for
-    the test surface reflectance image.
-    Replace this with actual expected output data.
-    """
-    return None  # Placeholder
+def test_mask_sr_masks_both_cloud_and_shadow(image):
+    mask_sr(image)
+    bits = numeric_args(image, "bitwiseAnd")
+    assert CLOUD_BIT in bits
+    assert SHADOW_BIT in bits
 
 
-def expected_output_toa():
-    """
-    Mock function to get expected output for
-    the test top-of-atmosphere reflectance image.
-    Replace this with actual expected output data.
-    """
-    return None  # Placeholder
+def test_mask_sr_keeps_pixels_where_neither_bit_is_set(image):
+    mask_sr(image)
+    assert 0 in numeric_args(image, "eq")
+    image.updateMask.assert_called_once()
 
 
-def test_sr():
-    """
-    Test the sr function from the cloudmask module.
-    """
-    # Load test data
-    test_image = load_test_image_sr()
-
-    # Apply cloud mask using the refactored function
-    result = cloudmask.sr(test_image)
-
-    # Compare the result with the expected output
-    expected_output = expected_output_sr()
-
-    # Assert that the result matches the expected output
-    # (this is a placeholder, adjust as needed)
-    assert result == expected_output, f"Expected {expected_output}, \
-        but got {result}"
+def test_mask_sr_returns_the_masked_image(image):
+    assert mask_sr(image) is image.updateMask.return_value
 
 
-def test_toa():
-    """
-    Test the toa function from the cloudmask module.
-    """
-    # Load test data
-    test_image = load_test_image_toa()
-
-    # Apply cloud mask using the refactored function
-    result = cloudmask.toa(test_image)
-
-    # Compare the result with the expected output
-    expected_output = expected_output_toa()
-
-    # Assert that the result matches the expected output
-    # (this is a placeholder, adjust as needed)
-    assert result == expected_output, f"Expected {expected_output}, \
-        but got {result}"
+def test_mask_toa_reads_qa_pixel(image):
+    mask_toa(image)
+    assert selected_bands(image) == ["QA_PIXEL"]
 
 
-# Add more tests as needed for other functionalities in the cloudmask module.
+def test_mask_toa_masks_cloud_only(image):
+    mask_toa(image)
+    bits = numeric_args(image, "bitwiseAnd")
+    assert bits == [CLOUD_BIT]
+    # The distinguishing property: TOA does not drop cloud shadow.
+    assert SHADOW_BIT not in bits
+
+
+def test_mask_toa_keeps_pixels_where_the_cloud_bit_is_clear(image):
+    mask_toa(image)
+    assert 0 in numeric_args(image, "eq")
+    image.updateMask.assert_called_once()
+
+
+def test_mask_toa_returns_the_masked_image(image):
+    assert mask_toa(image) is image.updateMask.return_value
+
+
+def test_the_two_masks_differ_only_in_the_shadow_bit(image):
+    from unittest.mock import MagicMock
+
+    sr_image, toa_image = MagicMock(), MagicMock()
+    mask_sr(sr_image)
+    mask_toa(toa_image)
+    sr_bits = set(numeric_args(sr_image, "bitwiseAnd"))
+    toa_bits = set(numeric_args(toa_image, "bitwiseAnd"))
+    assert sr_bits - toa_bits == {SHADOW_BIT}
