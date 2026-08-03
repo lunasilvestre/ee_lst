@@ -70,7 +70,14 @@ if __name__ == "__main__":
     dir1 = "./nodejs_downloads"
     dir2 = "./python_downloads"
 
-    for filename in os.listdir(dir1):
+    for d in (dir1, dir2):
+        if not os.path.isdir(d):
+            raise SystemExit(f"{d} does not exist - did the container run?")
+
+    compared = 0
+    skipped = []
+
+    for filename in sorted(os.listdir(dir1)):
         if filename.endswith(".tif"):
             img1_path = os.path.join(dir1, filename)
             img2_path = os.path.join(dir2, filename)
@@ -78,6 +85,25 @@ if __name__ == "__main__":
             if os.path.exists(img2_path):
                 print(f"Comparing {filename}...")
                 compare_images(img1_path, img2_path)
+                compared += 1
                 print("-" * 40)
             else:
+                skipped.append(filename)
                 print(f"Warning: {filename} not found in {dir2}. Skipping comparison.")
+
+    # Without this the script exits 0 when it compared nothing at all - an empty
+    # download directory, a container that produced no output, a rename upstream.
+    # A validation job that cannot fail is worse than no validation job.
+    if compared == 0:
+        raise SystemExit(
+            f"No GeoTIFFs were compared. {dir1} contained no .tif with a "
+            f"counterpart in {dir2}; nothing was validated."
+        )
+
+    if skipped:
+        raise SystemExit(
+            f"{len(skipped)} file(s) present in {dir1} had no counterpart in "
+            f"{dir2} and went unchecked: {', '.join(skipped)}"
+        )
+
+    print(f"OK: {compared} GeoTIFF(s) compared, all pixel-identical.")

@@ -1,0 +1,43 @@
+# The build context is the repo root (both images are built with `-f
+# validation/Dockerfile.* .`), so without this file everything here is packed
+# up and shipped to the Docker daemon on every build.
+#
+# That matters most for credentials: refactoring_validation.yml writes
+# .gee-sa-priv-key.json into the repo root *before* it builds either image.
+# No Dockerfile COPYs it, so it never reaches a layer - but there is no reason
+# to hand it to the daemon at all. The key is mounted at run time with -v.
+
+.gee-sa-priv-key.json
+*.json.key
+*.pem
+
+# Version control and local environments
+.git
+.gitignore
+.venv
+venv
+.refresh
+
+# Build artefacts and caches
+__pycache__
+*.py[cod]
+*.egg-info
+build
+dist
+.pytest_cache
+
+# Validation output directories - these are mounted at run time, and copying a
+# previous run's GeoTIFFs into the context would be both slow and confusing.
+validation/nodejs_downloads
+validation/python_downloads
+nodejs_downloads
+python_downloads
+
+# Node modules are installed inside the image
+node_modules
+
+# Not needed to build or run either container
+docs
+tests
+examples
+*.md
