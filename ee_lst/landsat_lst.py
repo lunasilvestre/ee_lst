@@ -92,6 +92,6 @@ def fetch_landsat_collection(landsat, date_start, date_end, geometry, use_ndvi):
     landsat_lst = landsat_all.map(lambda image: add_lst_band(landsat, image))
 
     # Add timestamp to each image in the collection
-    landsat_lst = landsat_lst.map(add_timestamp) #.map(add_raw_timestamp)
+    landsat_lst = landsat_lst.map(add_timestamp)  # .map(add_raw_timestamp)
 
     return landsat_lst
