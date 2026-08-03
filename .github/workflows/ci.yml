@@ -39,12 +39,10 @@ jobs:
       run: |
         black --check ee_lst/ tests/ examples/ validation/
 
-    # Stays commented until phase 3 replaces the placeholder tests.
-    # All 10 test functions currently fail: 8 call functions that do not
-    # exist, 2 call live Earth Engine. See .refresh/baseline.md.
-    # - name: Run tests
-    #   run: |
-    #     python -m pytest tests/
+    # The suite mocks `ee`, so it needs no credentials and no network.
+    - name: Run tests
+      run: |
+        python -m pytest tests/ -v
 
   # The lint job installs requirements.txt and never touches setup.py, so it
   # cannot catch a broken install_requires - that is exactly how the pyCrypto
