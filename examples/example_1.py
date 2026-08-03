@@ -10,8 +10,9 @@ if not ee.data._initialized:
         ee.Authenticate()
         ee.Initialize()
 
-# Define the Landsat LST module (assuming you've refactored it to Python)
-from modules.landsat_lst import fetch_landsat_collection
+# The package is `ee_lst`; `modules` was the pre-rename layout and never existed
+# here.
+from ee_lst.landsat_lst import fetch_landsat_collection
 
 # Define parameters
 geometry = ee.Geometry.Rectangle([-8.91, 40.0, -8.3, 40.4])
