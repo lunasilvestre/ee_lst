@@ -223,7 +223,13 @@ ee.data.authenticateViaPrivateKey(privateKey, () => {
               const fileName = vis.description + '.tif';
               downloadFile(fileName, folderName);
             } catch (error) {
-              console.error('Error in export: ' + e);  
+              // The binding is `error`; referencing `e` here threw
+              // ReferenceError from inside the handler, so the real failure was
+              // never printed and the process died on the error path instead.
+              console.error(
+                'Error in export of ' + vis.description + ': ' + error
+              );
+              process.exitCode = 1;
             }
           }
         );
