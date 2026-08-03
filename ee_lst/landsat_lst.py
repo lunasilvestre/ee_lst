@@ -1,5 +1,4 @@
 import ee
-import os
 from ee_lst.ncep_tpw import add_tpw_band
 from ee_lst.cloudmask import mask_sr
 from ee_lst.compute_ndvi import add_ndvi_band
@@ -8,12 +7,17 @@ from ee_lst.compute_emissivity import add_emissivity_band
 from ee_lst.smw_algorithm import add_lst_band
 from ee_lst.constants import LANDSAT_BANDS
 
-# Set the path to the service account key file
-os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "../.gee-sa-priv-key.json"
-
 
 def initialize_ee():
-    if not ee.data._initialized:
+    """Initialize Earth Engine unless it is already initialized.
+
+    Credentials are the caller's to supply, not this library's to choose.
+    Earth Engine resolves them through Application Default Credentials, so
+    set GOOGLE_APPLICATION_CREDENTIALS yourself, run `earthengine
+    authenticate`, or call ee.Initialize() with your own credentials before
+    using ee_lst. Importing this module does not modify your environment.
+    """
+    if not ee.data.is_initialized():
         try:
             ee.Initialize()
         except Exception:
