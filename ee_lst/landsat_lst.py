@@ -23,8 +23,8 @@ def initialize_ee():
 
 
 def add_timestamp(image):
-    timestamp = image.getNumber('system:time_start')
-    return image.addBands(ee.Image.constant(timestamp).rename('TIMESTAMP'))
+    timestamp = image.getNumber("system:time_start")
+    return image.addBands(ee.Image.constant(timestamp).rename("TIMESTAMP"))
     # # Convert the system:time_start property to a human-readable string
     # timestamp_string = ee.Date(image.get("system:time_start")).format(
     #     "YYYY-MM-DD HH:mm:ss"
@@ -57,10 +57,8 @@ def fetch_landsat_collection(landsat, date_start, date_end, geometry, use_ndvi):
 
     # Check if the provided Landsat collection is valid
     if landsat not in LANDSAT_BANDS.keys():
-        raise ValueError(
-            f"Invalid Landsat constellation: {landsat}. \
-            Valid options are: {list(LANDSAT_BANDS.keys())}"
-        )
+        raise ValueError(f"Invalid Landsat constellation: {landsat}. \
+            Valid options are: {list(LANDSAT_BANDS.keys())}")
 
     collection_dict = LANDSAT_BANDS[landsat]
 

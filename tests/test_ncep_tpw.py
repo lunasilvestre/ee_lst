@@ -36,7 +36,5 @@ def test_add_band():
 
     # Assert that the result matches the expected output
     # (this is a placeholder, adjust as needed)
-    assert (
-        result == expected_output
-    ), f"Expected {expected_output}, \
+    assert result == expected_output, f"Expected {expected_output}, \
         but got {result}"
