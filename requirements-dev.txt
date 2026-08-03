@@ -5,3 +5,8 @@
 # so examples/example_1.ipynb would be formatted locally and unchecked in CI.
 black[jupyter]==26.5.1
 flake8==7.3.0
+
+# Test runner. pytest-mock supplies the `mocker` fixture the suite uses to
+# patch `ee` per-test with automatic teardown.
+pytest==9.1.1
+pytest-mock==3.15.1
