@@ -74,36 +74,39 @@ if __name__ == "__main__":
         if not os.path.isdir(d):
             raise SystemExit(f"{d} does not exist - did the container run?")
 
+    tifs1 = {f for f in os.listdir(dir1) if f.endswith(".tif")}
+    tifs2 = {f for f in os.listdir(dir2) if f.endswith(".tif")}
+
     compared = 0
-    skipped = []
-
-    for filename in sorted(os.listdir(dir1)):
-        if filename.endswith(".tif"):
-            img1_path = os.path.join(dir1, filename)
-            img2_path = os.path.join(dir2, filename)
-
-            if os.path.exists(img2_path):
-                print(f"Comparing {filename}...")
-                compare_images(img1_path, img2_path)
-                compared += 1
-                print("-" * 40)
-            else:
-                skipped.append(filename)
-                print(f"Warning: {filename} not found in {dir2}. Skipping comparison.")
+    for filename in sorted(tifs1 & tifs2):
+        print(f"Comparing {filename}...")
+        compare_images(os.path.join(dir1, filename), os.path.join(dir2, filename))
+        compared += 1
+        print("-" * 40)
 
     # Without this the script exits 0 when it compared nothing at all - an empty
     # download directory, a container that produced no output, a rename upstream.
     # A validation job that cannot fail is worse than no validation job.
     if compared == 0:
         raise SystemExit(
-            f"No GeoTIFFs were compared. {dir1} contained no .tif with a "
-            f"counterpart in {dir2}; nothing was validated."
+            f"No GeoTIFFs were compared. No .tif in {dir1} had a counterpart "
+            f"in {dir2}; nothing was validated."
         )
 
-    if skipped:
+    # Checked in BOTH directions on purpose. A real run showed the JavaScript
+    # container exporting only 3 of 8 bands while Python exported all 8: the
+    # unmatched files were the *extra* ones, so a one-directional check saw
+    # nothing wrong and the job passed having validated well under half the
+    # output. Whichever side comes up short, it went unvalidated.
+    unmatched = []
+    if tifs1 - tifs2:
+        unmatched.append(f"only in {dir1}: {', '.join(sorted(tifs1 - tifs2))}")
+    if tifs2 - tifs1:
+        unmatched.append(f"only in {dir2}: {', '.join(sorted(tifs2 - tifs1))}")
+    if unmatched:
         raise SystemExit(
-            f"{len(skipped)} file(s) present in {dir1} had no counterpart in "
-            f"{dir2} and went unchecked: {', '.join(skipped)}"
+            f"Compared {compared} band(s), but the two sides do not match, so "
+            f"some output went unvalidated - " + "; ".join(unmatched)
         )
 
-    print(f"OK: {compared} GeoTIFF(s) compared, all pixel-identical.")
+    print(f"OK: all {compared} band(s) present on both sides, pixel-identical.")
