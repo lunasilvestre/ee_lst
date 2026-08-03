@@ -22,7 +22,7 @@ def ee_mock(mocker):
     ee = mocker.patch("ee_lst.landsat_lst.ee")
     # Pretend Earth Engine is already initialised so nothing tries to
     # authenticate or reach the network.
-    ee.data._initialized = True
+    ee.data.is_initialized.return_value = True
     return ee
 
 
@@ -33,21 +33,21 @@ def test_public_signature_is_unchanged():
 
 
 def test_initialize_ee_skips_when_already_initialised(ee_mock):
-    ee_mock.data._initialized = True
+    ee_mock.data.is_initialized.return_value = True
     landsat_lst.initialize_ee()
     ee_mock.Initialize.assert_not_called()
     ee_mock.Authenticate.assert_not_called()
 
 
 def test_initialize_ee_initialises_when_not_yet_initialised(ee_mock):
-    ee_mock.data._initialized = False
+    ee_mock.data.is_initialized.return_value = False
     landsat_lst.initialize_ee()
     ee_mock.Initialize.assert_called_once()
     ee_mock.Authenticate.assert_not_called()
 
 
 def test_initialize_ee_authenticates_only_after_a_failure(ee_mock):
-    ee_mock.data._initialized = False
+    ee_mock.data.is_initialized.return_value = False
     ee_mock.Initialize.side_effect = [Exception("no credentials"), None]
     landsat_lst.initialize_ee()
     ee_mock.Authenticate.assert_called_once()
