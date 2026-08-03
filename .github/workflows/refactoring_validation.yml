@@ -5,7 +5,12 @@ on:
     branches:
       - main
   schedule:
-    - cron: '0 0 * * 0'
+    # Monthly, not weekly. This job burns Earth Engine quota and Drive I/O to
+    # re-prove something that only changes when the code does - and it already
+    # runs on every push to main. Weekly was mostly spend on an unchanged repo.
+    - cron: '0 0 1 * *'
+  # Lets the pixel diff be re-run on demand without waiting for the schedule.
+  workflow_dispatch:
 
 jobs:
   test:

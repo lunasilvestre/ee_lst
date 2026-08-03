@@ -1,11 +1,21 @@
-# Use an official Node.js runtime as the base image
-FROM node:14
+# Runs the ORIGINAL JavaScript library under NodeJS, so its GeoTIFF output can
+# be diffed against the refactored Python. Built from the repo root:
+#   docker build -f validation/Dockerfile.landsat_lst -t node_lst .
+FROM node:20
 
 # Set the working directory in the container
 WORKDIR /app
 
-# Clone the original library from github
-RUN git clone https://github.com/sofiaermida/Landsat_SMW_LST.git .
+# Clone the original library from github, pinned.
+# Upstream is archived and currently sits on this commit ("Update to process
+# Landsat9", 2023-08-02), but an unpinned clone means the thing this refresh
+# validates against could change - or vanish - without any commit here. It also
+# makes modify_files.sh safe: that script sed-edits a hardcoded list of module
+# filenames, so it would fail silently if upstream reorganised.
+ARG UPSTREAM_SHA=65fd1ae9c752b6e3f738405495bcb1b5c773cf4d
+RUN git clone https://github.com/sofiaermida/Landsat_SMW_LST.git . \
+    && git checkout --quiet "${UPSTREAM_SHA}" \
+    && test "$(git rev-parse HEAD)" = "${UPSTREAM_SHA}"
 
 # Create a downloads directory
 RUN mkdir -p /app/downloads

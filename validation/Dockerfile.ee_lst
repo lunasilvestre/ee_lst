@@ -1,5 +1,7 @@
-# Use an official Python runtime as the base image
-FROM python:3.8-slim
+# Runs the refactored Python library so its GeoTIFF output can be diffed
+# against the original JavaScript. Built from the repo root:
+#   docker build -f validation/Dockerfile.ee_lst -t python_lst .
+FROM python:3.13-slim
 
 # Set the working directory in the container
 WORKDIR /app
@@ -7,15 +9,20 @@ WORKDIR /app
 # Create a downloads directory
 RUN mkdir -p /app/downloads
 
-# Copy requirements.txt into the container
-COPY ../requirements.txt /app
+# Copy requirements.txt into the container.
+# Paths are relative to the build context, which is the repo root - NOT to this
+# file. The previous `COPY ../requirements.txt` only worked because BuildKit
+# silently clamps a path that escapes the context back to the context root.
+COPY requirements.txt /app
 
 # Install any needed packages specified in requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy the modules directory and the example script into the container
-COPY ../ee_lst /app/ee_lst
+# Copy the library and the validation script into the container
+COPY ee_lst /app/ee_lst
 COPY validation/example_1_service_account.py ./
+
+# The service account key is mounted at run time (-v), never baked into a layer.
 
 # Run the Python script when the container launches
 CMD ["python", "example_1_service_account.py"]
