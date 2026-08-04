@@ -37,69 +37,80 @@ const jwtClient = new google.auth.JWT(
 );
 
 
-// Drive allows several folders to share a name, and files.list does not
-// guarantee a stable order. The 8 exports here run concurrently and each does
-// find-or-create on `folderName`, so more than one folder with that name can
-// exist. Resolving the name separately per download - as this file used to -
-// could therefore land on a different folder each time, which is why a random
-// subset of bands came back "not found" and why retrying never helped: the
-// file was never going to be in the folder being searched.
+// The folder name is not an address, and never was.
 //
-// So: resolve every folder with the name, once, and treat them as one space.
-let cachedFolderIds = null;
+// Earth Engine creates a BRAND NEW Drive folder for every export task; it does
+// not reuse an existing folder of that name. Run 30924... logged
+//
+//     WARNING: 81 folders are named 'node_lst_geotiffs'
+//
+// with creation times spaced at the export cadence - 8 new folders per run,
+// accumulated across runs. So resolving the name to a folder and searching
+// inside it is unsound however carefully it is done: by the time a task
+// finishes, its file is in a folder that did not exist when the name was
+// resolved. That is the whole bug, and it explains every symptom - the random
+// subset (whichever folder files[0] happened to hit), retries never helping
+// (wrong folder, so waiting changes nothing), and Python being immune (its
+// exports are sequential, so a single folder serves the whole run).
+//
+// The fix is to stop addressing by folder. Cleanup guarantees no file of a
+// given name survives from a previous run, so a plain name search across the
+// account is unambiguous - and it does not care which folder Earth Engine
+// invented this time.
 
-const resolveFolderIds = async (driveService, folderName) => {
-  if (cachedFolderIds) return cachedFolderIds;
-  const res = await driveService.files.list({
-    q:
-      `name='${folderName}' and trashed=false and ` +
-      `mimeType='application/vnd.google-apps.folder'`,
-    fields: 'files(id,name,createdTime)',
-  });
-  const folders = res.data.files || [];
-  if (folders.length === 0) {
-    console.error(`Folder ${folderName} not found.`);
-  } else if (folders.length > 1) {
-    console.warn(
-      `WARNING: ${folders.length} folders are named '${folderName}'. ` +
-      `Searching all of them. IDs: ` +
-      folders.map((f) => `${f.id} (created ${f.createdTime})`).join(', ')
-    );
-  } else {
-    console.log(`Folder ${folderName} resolved to ${folders[0].id}.`);
-  }
-  cachedFolderIds = folders.map((f) => f.id);
-  return cachedFolderIds;
+const FOLDER_MIME = 'application/vnd.google-apps.folder';
+
+const listAll = async (driveService, q, fields) => {
+  const out = [];
+  let pageToken;
+  do {
+    const res = await driveService.files.list({
+      q,
+      fields: `nextPageToken, files(${fields})`,
+      pageSize: 1000,
+      pageToken,
+    });
+    out.push(...(res.data.files || []));
+    pageToken = res.data.nextPageToken;
+  } while (pageToken);
+  return out;
 };
-
-const parentClause = (folderIds) =>
-  '(' + folderIds.map((id) => `'${id}' in parents`).join(' or ') + ')';
 
 const cleanupGDriveFolder = async (folderName) => {
   const driveService = google.drive({ version: 'v3', auth: jwtClient });
   try {
-    const folderIds = await resolveFolderIds(driveService, folderName);
-    if (folderIds.length === 0) return;
-
-    // Clean every matching folder. Leaving stale files in a duplicate would
-    // let a later run download the previous run's output and compare it as if
-    // it were fresh - a false pass.
-    const filesRes = await driveService.files.list({
-      q: `${parentClause(folderIds)} and trashed=false`,
-      fields: 'files(id,name)',
-    });
-    const files = filesRes.data.files || [];
-
-    for (const file of files) {
-      await driveService.files.delete({
-        fileId: file.id,
-      });
-    }
-    console.log(
-      `Folder cleaned up successfully (${files.length} file(s) removed ` +
-      `from ${folderIds.length} folder(s) named '${folderName}').`
+    const folders = await listAll(
+      driveService,
+      `name='${folderName}' and trashed=false and mimeType='${FOLDER_MIME}'`,
+      'id,createdTime'
     );
-    // The cached IDs stay valid: cleanup removes files, not the folders.
+    if (folders.length > 1) {
+      console.warn(
+        `${folders.length} folders are named '${folderName}' - Earth Engine ` +
+        `creates a new one per export. Clearing and removing all of them.`
+      );
+    }
+
+    let removedFiles = 0;
+    for (const folder of folders) {
+      const files = await listAll(
+        driveService,
+        `'${folder.id}' in parents and trashed=false`,
+        'id,name'
+      );
+      for (const file of files) {
+        await driveService.files.delete({ fileId: file.id });
+        removedFiles += 1;
+      }
+      // Remove the folder too. Leaving them behind is what let 81 accumulate,
+      // and Earth Engine will make a fresh one for each export regardless.
+      await driveService.files.delete({ fileId: folder.id });
+    }
+
+    console.log(
+      `Cleanup complete: ${removedFiles} file(s) and ${folders.length} ` +
+      `folder(s) named '${folderName}' removed.`
+    );
   } catch (error) {
     console.error('Error cleaning up folder:', error.message);
   }
@@ -113,43 +124,54 @@ const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 const FILE_LOOKUP_ATTEMPTS = 12;
 const FILE_LOOKUP_DELAY_MS = 10000;
 
-// Earth Engine splits a large export into tiles named like
-// "TCWV-0000000000-0000000000.tif" instead of "TCWV.tif". An exact-name lookup
-// would never find those, so match the prefix and report what turned up.
-async function findFileId(driveService, fileName, folderIds, folderName) {
+// Search by name across the whole account, deliberately NOT scoped to a
+// folder - see the note above cleanupGDriveFolder. Cleanup has already removed
+// every file of this name, so a match can only be from this run.
+//
+// Earth Engine also splits a large export into tiles named like
+// "TCWV-0000000000-0000000000.tif" rather than "TCWV.tif", which an exact-name
+// lookup would never find, so fall back to the prefix and say when that happens.
+async function findFileId(driveService, fileName) {
   const stem = fileName.replace(/\.tif$/, '');
-  const scope = parentClause(folderIds);
+  const notAFolder = `mimeType!='${FOLDER_MIME}'`;
   for (let attempt = 1; attempt <= FILE_LOOKUP_ATTEMPTS; attempt++) {
-      const exact = await driveService.files.list({
-          q: `name='${fileName}' and ${scope} and trashed=false`,
-          fields: "files(id,name)"
-      });
-      const files = exact.data.files;
-      if (files && files.length > 0) {
+      const exact = await listAll(
+          driveService,
+          `name='${fileName}' and trashed=false and ${notAFolder}`,
+          'id,name,createdTime'
+      );
+      if (exact.length > 0) {
           if (attempt > 1) {
               console.log(`${fileName} appeared in Drive after ${attempt} lookups.`);
           }
-          return files[0].id;
+          if (exact.length > 1) {
+              console.warn(
+                `${exact.length} files are named ${fileName}; taking the newest. ` +
+                `Cleanup should have left at most one.`
+              );
+          }
+          exact.sort((a, b) => (a.createdTime < b.createdTime ? 1 : -1));
+          return exact[0].id;
       }
 
-      const prefixed = await driveService.files.list({
-          q: `name contains '${stem}' and ${scope} and trashed=false`,
-          fields: "files(id,name)"
-      });
-      const near = prefixed.data.files || [];
-      if (near.length > 0) {
+      const prefixed = await listAll(
+          driveService,
+          `name contains '${stem}' and trashed=false and ${notAFolder}`,
+          'id,name'
+      );
+      if (prefixed.length > 0) {
           console.warn(
             `${fileName} is not present under that exact name, but ` +
-            `${near.length} file(s) match the prefix: ` +
-            near.map((f) => f.name).join(', ') +
+            `${prefixed.length} file(s) match the prefix: ` +
+            prefixed.map((f) => f.name).join(', ') +
             '. Earth Engine may have tiled this export.'
           );
-          return near[0].id;
+          return prefixed[0].id;
       }
 
       if (attempt < FILE_LOOKUP_ATTEMPTS) {
           console.log(
-            `${fileName} not listable in ${folderName} yet ` +
+            `${fileName} not listable yet ` +
             `(lookup ${attempt}/${FILE_LOOKUP_ATTEMPTS}); retrying in ` +
             `${FILE_LOOKUP_DELAY_MS / 1000}s`
           );
@@ -162,27 +184,34 @@ async function findFileId(driveService, fileName, folderIds, folderName) {
 async function downloadFile(fileName, folderName) {
   const driveService = google.drive({ version: 'v3', auth: jwtClient });
   try {
-      // Step 1: Find the file ID
-      const folderIds = await resolveFolderIds(driveService, folderName);
-      if (folderIds.length === 0) return false;
-
-      const fileId = await findFileId(driveService, fileName, folderIds, folderName);
+      // Step 1: Find the file ID, by name, anywhere in the account.
+      const fileId = await findFileId(driveService, fileName);
       if (!fileId) {
           console.error(
-            `File ${fileName} not found in folder ${folderName} after ` +
-            `${FILE_LOOKUP_ATTEMPTS} lookups over ` +
-            `${(FILE_LOOKUP_ATTEMPTS * FILE_LOOKUP_DELAY_MS) / 1000}s.`
+            `File ${fileName} not found after ${FILE_LOOKUP_ATTEMPTS} lookups ` +
+            `over ${(FILE_LOOKUP_ATTEMPTS * FILE_LOOKUP_DELAY_MS) / 1000}s.`
           );
-          // Say what IS there, so the next failure is diagnosable from the log
-          // rather than needing another instrumented run.
+          // Say what Earth Engine actually produced, so a failure is
+          // diagnosable from the log rather than needing another run.
           try {
-              const listing = await driveService.files.list({
-                  q: `${parentClause(folderIds)} and trashed=false`,
-                  fields: "files(name)"
-              });
-              const names = (listing.data.files || []).map((f) => f.name);
+              const folders = await listAll(
+                  driveService,
+                  `name='${folderName}' and trashed=false and ` +
+                  `mimeType='${FOLDER_MIME}'`,
+                  'id'
+              );
+              const names = [];
+              for (const folder of folders) {
+                  const inFolder = await listAll(
+                      driveService,
+                      `'${folder.id}' in parents and trashed=false`,
+                      'name'
+                  );
+                  names.push(...inFolder.map((f) => f.name));
+              }
               console.error(
-                `  Folder actually contains ${names.length} file(s): ` +
+                `  ${folders.length} folder(s) named '${folderName}' hold ` +
+                `${names.length} file(s): ` +
                 (names.length ? names.sort().join(', ') : '(empty)')
               );
           } catch (listErr) {
