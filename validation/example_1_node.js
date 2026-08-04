@@ -64,6 +64,40 @@ const cleanupGDriveFolder = async (folderName) => {
 };
 
 
+const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+// Earth Engine reports a task COMPLETED as soon as its own side is done, but
+// the exported file takes a further moment to become listable in Drive. A
+// single lookup therefore misses roughly half of them: in run 30855338134 all
+// 8 tasks reached COMPLETED and 4 downloads still reported "not found".
+const FILE_LOOKUP_ATTEMPTS = 12;
+const FILE_LOOKUP_DELAY_MS = 10000;
+
+async function findFileId(driveService, fileName, folderId, folderName) {
+  for (let attempt = 1; attempt <= FILE_LOOKUP_ATTEMPTS; attempt++) {
+      const fileResults = await driveService.files.list({
+          q: `name='${fileName}' and '${folderId}' in parents and trashed=false`,
+          fields: "files(id)"
+      });
+      const files = fileResults.data.files;
+      if (files && files.length > 0) {
+          if (attempt > 1) {
+              console.log(`${fileName} appeared in Drive after ${attempt} lookups.`);
+          }
+          return files[0].id;
+      }
+      if (attempt < FILE_LOOKUP_ATTEMPTS) {
+          console.log(
+            `${fileName} not listable in ${folderName} yet ` +
+            `(lookup ${attempt}/${FILE_LOOKUP_ATTEMPTS}); retrying in ` +
+            `${FILE_LOOKUP_DELAY_MS / 1000}s`
+          );
+          await sleep(FILE_LOOKUP_DELAY_MS);
+      }
+  }
+  return null;
+}
+
 async function downloadFile(fileName, folderName) {
   const driveService = google.drive({ version: 'v3', auth: jwtClient });
   try {
@@ -75,21 +109,20 @@ async function downloadFile(fileName, folderName) {
       const folders = folderResults.data.files;
       if (!folders || folders.length === 0) {
           console.error(`Folder ${folderName} not found.`);
-          return;
+          return false;
       }
       const folderId = folders[0].id;
-      
-      const fileResults = await driveService.files.list({
-          q: `name='${fileName}' and '${folderId}' in parents`,
-          fields: "files(id)"
-      });
-      const files = fileResults.data.files;
-      if (!files || files.length === 0) {
-          console.error(`File ${fileName} not found in folder ${folderName}.`);
-          return;
+
+      const fileId = await findFileId(driveService, fileName, folderId, folderName);
+      if (!fileId) {
+          console.error(
+            `File ${fileName} not found in folder ${folderName} after ` +
+            `${FILE_LOOKUP_ATTEMPTS} lookups over ` +
+            `${(FILE_LOOKUP_ATTEMPTS * FILE_LOOKUP_DELAY_MS) / 1000}s.`
+          );
+          return false;
       }
-      const fileId = files[0].id;
-      
+
       // Step 2: Download the file
       const dest = fs.createWriteStream(path.join(downloadPath, fileName));
       const res = await driveService.files.get({
@@ -98,19 +131,22 @@ async function downloadFile(fileName, folderName) {
       }, {
           responseType: 'stream'
       });
-      
-      res.data
-          .on('end', () => {
-              console.log(`File ${fileName} downloaded successfully.`);
-          })
-          .on('error', err => {
-              console.error('Error downloading file:', err);
-              dest.close();
-          })
-          .pipe(dest);
-      
+
+      // Wait for the write stream to finish, not just the read stream to end.
+      // Returning early left the process free to exit mid-write.
+      await new Promise((resolve, reject) => {
+          dest.on('finish', resolve);
+          dest.on('error', reject);
+          res.data.on('error', reject);
+          res.data.pipe(dest);
+      });
+
+      console.log(`File ${fileName} downloaded successfully.`);
+      return true;
+
   } catch (error) {
-      console.error('Error:', error.message);
+      console.error(`Error downloading ${fileName}:`, error.message);
+      return false;
   }
 }
 
@@ -221,7 +257,13 @@ ee.data.authenticateViaPrivateKey(privateKey, () => {
               await logTaskStatusAsync(exportTask.id, vis.description);  // Log the status of this task periodically
               console.log(vis.description + ' export completed!');
               const fileName = vis.description + '.tif';
-              downloadFile(fileName, folderName);
+              // Awaited: previously this was fire-and-forget, so a failed
+              // download was a log line the job never noticed.
+              const downloaded = await downloadFile(fileName, folderName);
+              if (!downloaded) {
+                console.error('Download failed for ' + vis.description);
+                process.exitCode = 1;
+              }
             } catch (error) {
               // The binding is `error`; referencing `e` here threw
               // ReferenceError from inside the handler, so the real failure was
