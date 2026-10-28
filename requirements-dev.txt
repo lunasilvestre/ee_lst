@@ -3,7 +3,7 @@
 #
 # black MUST carry the [jupyter] extra. Bare black silently skips .ipynb files,
 # so examples/example_1.ipynb would be formatted locally and unchecked in CI.
-black[jupyter]==26.5.1
+black[jupyter]==26.10.1
 flake8==7.3.0
 
 # Test runner. pytest-mock supplies the `mocker` fixture the suite uses to
